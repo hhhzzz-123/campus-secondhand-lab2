@@ -1,0 +1,59 @@
+
+@startuml CampusComponentDiagram
+title 校园二手交易系统 - UML组件图
+
+top to bottom direction
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam defaultFontName Microsoft YaHei
+skinparam nodesep 35
+skinparam ranksep 45
+
+package "表示层" {
+    component "Web用户界面" as UI
+}
+
+package "业务服务层" as Business {
+
+    component "统一业务入口" as API
+
+    package "基础服务" as Basic {
+        component "用户与权限管理" as Auth
+        component "查询与统计" as Query
+        component "操作日志" as Log
+    }
+
+    package "核心交易服务" as Core {
+        component "商品管理" as Product
+        component "审核与违规处理" as Audit
+        component "预约与交易管理" as Trade
+    }
+}
+
+package "数据持久化层" {
+    component "数据访问层" as DAO
+    database "业务数据库" as DB
+}
+
+UI -down-> API : 发送业务请求
+
+API --> Auth : 身份与权限验证
+API --> Core : 商品、审核、交易操作
+API --> Query : 查询与统计
+API --> Log : 日志查询
+
+Audit --> Product : 审核与下架
+Audit --> Trade : 处理违规关联预约
+Trade --> Product : 校验并更新商品状态
+
+Business -down-> DAO : 持久化业务数据
+DAO -down-> DB : 读写数据
+
+note bottom of Trade
+同一商品最多一条有效预约。
+商品状态与预约状态保持一致。
+end note
+
+@enduml

@@ -1,0 +1,114 @@
+@startuml CampusClassDiagram
+
+title 校园二手交易系统 - UML类图
+
+top to bottom direction
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype polyline
+skinparam ranksep 65
+skinparam nodesep 35
+skinparam defaultFontName "Microsoft YaHei"
+skinparam class {
+  BackgroundColor #F7FAFE
+  BorderColor #60768F
+  ArrowColor #60768F
+}
+hide circle
+
+class User {
+  - userId : int
+  - username : String
+  - passwordHash : String
+  - roles : Set<UserRole>
+  + login() : boolean
+}
+
+enum UserRole {
+  BUYER
+  SELLER
+  ADMIN
+}
+
+class Product {
+  - productId : int
+  - title : String
+  - description : String
+  - price : Decimal
+  - condition : String
+  - status : ProductStatus
+  + submitForReview() : boolean
+  + updateInfo() : boolean
+  + takeDown() : boolean
+}
+
+enum ProductStatus {
+  DRAFT
+  PENDING_REVIEW
+  REJECTED
+  ON_SALE
+  RESERVED
+  TAKEN_DOWN
+  SOLD
+}
+
+class Reservation {
+  - reservationId : int
+  - requestId : String
+  - status : ReservationStatus
+  - createdAt : DateTime
+  - confirmedAt : DateTime
+  + cancel() : boolean
+  + confirm() : boolean
+  + complete() : boolean
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  REJECTED
+  EXPIRED
+  COMPLETED
+}
+
+class Category {
+  - categoryId : int
+  - name : String
+}
+
+class AuditRecord {
+  - auditId : int
+  - auditorId : int
+  - result : String
+  - reason : String
+  - auditedAt : DateTime
+}
+
+class OperationLog {
+  - logId : int
+  - operatorId : int
+  - action : String
+  - targetId : int
+  - result : String
+  - operatedAt : DateTime
+}
+
+User "1" -down- "0..*" Product : 发布商品
+User "1" -down- "0..*" Reservation : 发起预约
+Product "1" -right- "0..*" Reservation : 历史预约
+Category "1" -right- "0..*" Product : 归属分类
+Product "1" -down- "0..*" AuditRecord : 审核历史
+User "1" -right- "0..*" OperationLog : 操作日志
+
+UserRole -[hidden]left- User
+ProductStatus -[hidden]left- Product
+Reservation -[hidden]right- ReservationStatus
+
+note bottom of Reservation
+  一个商品可以有多条历史预约，
+  但任一时刻最多只有一条有效预约；
+  商品和预约状态须同步更新。
+end note
+
+@enduml

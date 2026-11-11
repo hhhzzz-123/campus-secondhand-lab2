@@ -1,0 +1,58 @@
+
+@startuml ReservationSequenceDiagram
+title 校园二手交易系统 - 并发预约时序图
+
+skinparam shadowing false
+skinparam defaultFontName Microsoft YaHei
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+autonumber
+
+actor "买家A" as A
+actor "买家B" as B
+boundary "Web界面" as UI
+control "预约服务" as Service
+database "业务数据库" as DB
+participant "日志服务" as Log
+
+note over A, B
+两名买家尝试预约同一件在售商品。
+以下以买家A先获得事务锁为例。
+end note
+
+par 买家A提交预约
+    A -> UI : 点击预约
+    UI -> Service : 创建预约(A, 商品ID, 请求ID-A)
+else 买家B提交预约
+    B -> UI : 点击预约
+    UI -> Service : 创建预约(B, 商品ID, 请求ID-B)
+end
+
+group 买家A的事务先执行
+    Service -> DB : 开启事务并锁定商品记录
+    DB --> Service : 商品状态：在售
+    Service -> DB : 检查请求编号及有效预约
+    DB --> Service : 不存在重复请求或有效预约
+    Service -> DB : 插入预约并更新商品状态
+    DB --> Service : 写入成功
+    Service -> DB : 提交事务
+    Service -> Log : 记录预约成功
+    Service --> UI : A预约成功
+    UI --> A : 显示预约成功
+end
+
+group 买家B的事务随后执行
+    Service -> DB : 获取商品锁并重新检查状态
+    DB --> Service : 商品状态：已预约
+    Service -> Log : 记录预约冲突
+    Service --> UI : B预约失败，提示刷新
+    UI --> B : 显示商品不可预约
+end
+
+note over Service, DB
+数据库事务保证商品状态与预约记录一致。
+同一商品在任一时刻最多一条有效预约。
+重复请求编号应返回首次处理结果。
+end note
+
+@enduml

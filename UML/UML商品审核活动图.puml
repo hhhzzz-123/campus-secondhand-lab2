@@ -1,0 +1,51 @@
+
+@startuml ProductActivityDiagram
+title 校园二手交易系统 - 商品发布与审核活动图
+
+skinparam shadowing false
+skinparam defaultFontName Microsoft YaHei
+
+|卖家|
+start
+:填写商品信息;
+:保存商品草稿;
+:提交审核申请;
+
+|系统|
+if (商品信息是否合法?) then (是)
+  :商品状态设为待审核;
+
+  |管理员|
+  :查看待审核商品;
+  :检查商品信息;
+
+  if (是否审核通过?) then (通过)
+    :填写审核通过结论;
+
+    |系统|
+    :保存审核记录;
+    :商品状态设为在售;
+    :公开展示商品;
+
+  else (驳回)
+    |管理员|
+    :填写驳回原因;
+
+    |系统|
+    :保存审核记录及原因;
+    :商品状态设为已驳回;
+
+    |卖家|
+    :查看驳回原因;
+    :修改后可重新提交;
+  endif
+
+else (否)
+  :提示信息错误;
+
+  |卖家|
+  :修改不合法的商品信息;
+endif
+
+stop
+@enduml

@@ -1,0 +1,49 @@
+
+@startuml ReservationStateDiagram
+title 校园二手交易系统 - 预约状态图
+
+skinparam shadowing false
+skinparam defaultFontName Microsoft YaHei
+skinparam state {
+    BackgroundColor #F5F8FC
+    BorderColor #526B85
+    ArrowColor #526B85
+    FontColor #263748
+    RoundCorner 12
+}
+
+hide empty description
+
+[*] --> PENDING : 买家成功预约
+
+state "待确认" as PENDING
+state "已确认" as CONFIRMED
+state "已取消" as CANCELLED
+state "已拒绝" as REJECTED
+state "已超时" as EXPIRED
+state "已完成" as COMPLETED
+
+PENDING --> CONFIRMED : 卖家确认
+PENDING --> CANCELLED : 买家取消
+PENDING --> REJECTED : 卖家拒绝
+PENDING --> EXPIRED : 48小时无回应
+
+CONFIRMED --> COMPLETED : 线下交付并确认收货
+
+CANCELLED --> [*]
+REJECTED --> [*]
+EXPIRED --> [*]
+COMPLETED --> [*]
+
+note right of PENDING
+同一商品只能有一条有效预约。
+取消、拒绝或超时后，
+商品恢复可预约状态。
+end note
+
+note right of CONFIRMED
+确认后买家不能自行取消。
+管理员争议处理细则待确认。
+end note
+
+@enduml

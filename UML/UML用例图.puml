@@ -1,0 +1,73 @@
+
+@startuml CampusUseCaseDiagram
+title 校园二手交易系统 - UML用例图
+
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Microsoft YaHei
+skinparam actorStyle awesome
+
+actor "买家" as Buyer
+actor "卖家" as Seller
+actor "管理员" as Admin
+
+rectangle "校园二手交易系统" {
+
+    package "公共功能" {
+        usecase "注册与登录" as UC1
+        usecase "查询商品" as UC2
+    }
+
+    package "买家功能" {
+        usecase "预约商品" as UC3
+        usecase "取消预约" as UC4
+        usecase "查看预约记录" as UC5
+        usecase "确认收货" as UC6
+    }
+
+    package "卖家功能" {
+        usecase "发布与编辑商品" as UC7
+        usecase "提交商品审核" as UC8
+        usecase "上下架商品" as UC9
+        usecase "确认或拒绝预约" as UC10
+        usecase "登记线下交付" as UC16
+        usecase "查看商品统计" as UC11
+    }
+
+    package "管理员功能" {
+        usecase "审核商品" as UC12
+        usecase "违规商品处理" as UC13
+        usecase "查看平台统计" as UC14
+        usecase "查询操作日志" as UC15
+    }
+}
+
+Buyer --> UC1
+Buyer --> UC2
+Buyer --> UC3
+Buyer --> UC4
+Buyer --> UC5
+Buyer --> UC6
+
+Seller --> UC1
+Seller --> UC2
+Seller --> UC7
+Seller --> UC8
+Seller --> UC9
+Seller --> UC10
+Seller --> UC16
+Seller --> UC11
+
+Admin --> UC1
+Admin --> UC12
+Admin --> UC13
+Admin --> UC14
+Admin --> UC15
+
+note bottom of Buyer
+买家与卖家可以是同一个账号，
+但操作时必须满足对应权限。
+end note
+
+@enduml
